@@ -31,7 +31,8 @@ function useBlobs(): boolean {
 // ── PostgreSQL backend ────────────────────────────────────────────────────────
 
 async function pgGetTop(n: number): Promise<ScoreEntry[]> {
-  const { getPool } = await import('./db');
+  const { getPool, ensureSchema } = await import('./db');
+  await ensureSchema();
   const { rows } = await getPool().query<{
     id: string; name: string; score: number; date: Date;
   }>(
@@ -45,7 +46,8 @@ async function pgGetTop(n: number): Promise<ScoreEntry[]> {
 }
 
 async function pgAdd(entry: Omit<ScoreEntry, 'id' | 'date'>): Promise<ScoreEntry> {
-  const { getPool } = await import('./db');
+  const { getPool, ensureSchema } = await import('./db');
+  await ensureSchema();
   const { rows } = await getPool().query<{
     id: string; name: string; score: number; date: Date;
   }>(
