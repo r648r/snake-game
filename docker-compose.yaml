@@ -2,9 +2,9 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
-      - DATABASE_URL=postgresql://snake:snake123@db:5432/snakedb
+      - DATABASE_URL=${DATABASE_URL}
       - NODE_ENV=production
     depends_on:
       db:
@@ -14,9 +14,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: snake
-      POSTGRES_PASSWORD: snake123
-      POSTGRES_DB: snakedb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
