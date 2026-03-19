@@ -1,0 +1,407 @@
+/* ════════════════════════════════════════════════════════════
+   SNAKE.EXE — CRT Terminal Aesthetic
+   Fonts: VT323 (display) + Share Tech Mono (body)
+   ════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --g:       #00ff41;   /* phosphor green */
+  --g2:      #00cc33;
+  --g3:      #008822;
+  --g4:      #003311;
+  --g5:      #001a0d;
+  --r:       #ff2d55;   /* danger red */
+  --bg:      #000d0a;
+  --bg2:     #010f08;
+  --border:  #002a14;
+  --fn-d:    'VT323', monospace;
+  --fn-b:    'Share Tech Mono', monospace;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--g);
+  font-family: var(--fn-b);
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Full-page scanline overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 65, 0.012) 2px,
+    rgba(0, 255, 65, 0.012) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── Page shell ──────────────────────────────────────────── */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 3rem;
+  gap: 2rem;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1120px;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-tag {
+  font-size: 0.75rem;
+  color: var(--g3);
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.header-title {
+  font-family: var(--fn-d);
+  font-size: 3.2rem;
+  letter-spacing: 0.2em;
+  color: var(--g);
+  text-shadow: 0 0 20px var(--g), 0 0 50px rgba(0,255,65,.35);
+  flex: 1;
+  text-align: center;
+}
+
+/* ── Layout ──────────────────────────────────────────────── */
+
+.layout {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1120px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   GAME
+   ════════════════════════════════════════════════════════════ */
+
+.game-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* Score bar */
+.scorebar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.35rem 0.8rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: var(--g3);
+}
+
+.scorebar-digits {
+  font-family: var(--fn-d);
+  font-size: 1.55rem;
+  color: var(--g);
+  text-shadow: 0 0 8px var(--g);
+  letter-spacing: 0.08em;
+  flex: 1;
+}
+
+/* CRT frame */
+.crt-wrap {
+  position: relative;
+  border: 1px solid var(--g3);
+  box-shadow:
+    0 0 0 1px var(--g5),
+    0 0 28px rgba(0,255,65,.12),
+    inset 0 0 20px rgba(0,0,0,.6);
+  cursor: none;
+}
+
+.crt-wrap::before,
+.crt-wrap::after {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border: 1px solid var(--border);
+  pointer-events: none;
+}
+
+.crt-wrap::after {
+  top: 3px; left: 3px; right: 3px; bottom: 3px;
+  border-color: var(--g5);
+}
+
+.game-canvas { display: block; }
+
+/* ── Overlays ────────────────────────────────────────────── */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  background: rgba(0, 13, 10, 0.86);
+  backdrop-filter: blur(3px);
+}
+
+.ov-title {
+  font-family: var(--fn-d);
+  font-size: 5rem;
+  letter-spacing: 0.22em;
+  color: var(--g);
+  text-shadow: 0 0 30px var(--g), 0 0 70px rgba(0,255,65,.4);
+}
+
+.ov-sub {
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  color: var(--g3);
+}
+
+.ov-keys {
+  font-size: 0.72rem;
+  color: var(--g4);
+  letter-spacing: 0.1em;
+}
+
+.ov-keys kbd {
+  color: var(--g3);
+  border: 1px solid var(--g4);
+  padding: 0.1em 0.4em;
+  font-family: var(--fn-b);
+  font-size: 0.7rem;
+}
+
+.ov-killed {
+  font-family: var(--fn-d);
+  font-size: 3.2rem;
+  letter-spacing: 0.2em;
+  color: var(--r);
+  text-shadow: 0 0 25px var(--r);
+}
+
+.ov-final-score {
+  font-family: var(--fn-d);
+  font-size: 3rem;
+  letter-spacing: 0.15em;
+  color: var(--g);
+  text-shadow: 0 0 18px var(--g);
+}
+
+.ov-save-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.ov-name-input {
+  background: transparent;
+  border: 1px solid var(--g3);
+  color: var(--g);
+  font-family: var(--fn-d);
+  font-size: 1.4rem;
+  padding: 0.3rem 0.8rem;
+  letter-spacing: 0.2em;
+  width: 10ch;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.ov-name-input::placeholder { color: var(--g4); }
+.ov-name-input:focus {
+  border-color: var(--g);
+  box-shadow: 0 0 10px rgba(0,255,65,.25);
+}
+
+.ov-btn {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: var(--g);
+  font-family: var(--fn-d);
+  font-size: 1.15rem;
+  letter-spacing: 0.15em;
+  padding: 0.3rem 1rem;
+  cursor: pointer;
+  transition: background 0.12s, box-shadow 0.12s;
+}
+
+.ov-btn:hover:not(:disabled) {
+  background: rgba(0,255,65,.1);
+  box-shadow: 0 0 14px rgba(0,255,65,.28);
+}
+
+.ov-btn:disabled { opacity: 0.35; cursor: wait; }
+
+.ov-btn-save  { color: var(--g); }
+.ov-btn-restart { color: var(--g3); font-size: 1rem; letter-spacing: 0.1em; }
+
+.ov-saved {
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  color: var(--g3);
+}
+
+/* ════════════════════════════════════════════════════════════
+   LEADERBOARD
+   ════════════════════════════════════════════════════════════ */
+
+.lb {
+  flex: 1;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  flex-direction: column;
+  min-width: 260px;
+  max-width: 340px;
+}
+
+.lb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.lb-title {
+  font-family: var(--fn-d);
+  font-size: 1.3rem;
+  letter-spacing: 0.25em;
+  color: var(--g);
+  text-shadow: 0 0 8px var(--g);
+}
+
+.lb-refresh {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--g3);
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.1s, border-color 0.1s;
+}
+
+.lb-refresh:hover {
+  color: var(--g);
+  border-color: var(--g3);
+}
+
+.lb-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--g4);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+}
+
+.lb-state-err { color: var(--r); }
+
+.lb-list {
+  list-style: none;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.lb-entry {
+  display: grid;
+  grid-template-columns: 2ch 1fr auto auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.48rem 1rem;
+  border-bottom: 1px solid var(--g5);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  transition: background 0.08s;
+  color: var(--g3);
+}
+
+.lb-entry:last-child { border-bottom: none; }
+.lb-entry:hover { background: rgba(0,255,65,.04); }
+
+.lb-gold   { color: var(--g);  background: rgba(0,255,65,.06); }
+.lb-silver { color: var(--g2); }
+.lb-bronze { color: var(--g3); }
+
+.lb-gold .lb-score { text-shadow: 0 0 8px var(--g); }
+
+.lb-rank  { color: var(--g4); font-size: 0.7rem; }
+.lb-name  { font-family: var(--fn-b); letter-spacing: 0.12em; }
+.lb-score { font-family: var(--fn-d); font-size: 1.1rem; }
+.lb-date  { font-size: 0.65rem; color: var(--g4); white-space: nowrap; }
+
+.lb-footer {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.65rem;
+  color: var(--g4);
+  letter-spacing: 0.1em;
+}
+
+.lb-footer code {
+  color: var(--g3);
+  font-family: var(--fn-b);
+}
+
+/* ════════════════════════════════════════════════════════════
+   ANIMATIONS
+   ════════════════════════════════════════════════════════════ */
+
+.blink { animation: blink 1.5s step-end infinite; }
+.pulse { animation: pulse 2.2s ease-in-out infinite; }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 880px) {
+  .layout {
+    flex-direction: column;
+    align-items: center;
+  }
+  .lb {
+    max-width: 100%;
+    width: 100%;
+  }
+  .header-title { font-size: 2.4rem; }
+}
+
+@media (max-width: 480px) {
+  .header { gap: 0.8rem; }
+  .header-tag { display: none; }
+}

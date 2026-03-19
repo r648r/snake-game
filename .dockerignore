@@ -1,0 +1,9 @@
+.next
+node_modules
+data/
+.env*
+*.md
+.git
+.gitignore
+netlify.toml
+out/

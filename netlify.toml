@@ -1,0 +1,10 @@
+[build]
+  command   = "npm run build"
+  publish   = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Force Node 20 for Next.js 15 compatibility
+[build.environment]
+  NODE_VERSION = "20"

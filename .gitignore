@@ -1,0 +1,18 @@
+# Next.js
+.next/
+out/
+
+# Node
+node_modules/
+
+# Local score data (don't commit game data)
+data/scores.json
+
+# Netlify
+.netlify/
+
+# OS
+.DS_Store
+
+# Override root gitignore (root ignores lib/ for Python venvs)
+!lib/
